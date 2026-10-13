@@ -1,0 +1,12 @@
+We are hiring a Software Development Engineer (SDE) to design and build scalable, fault-tolerant distributed systems.
+
+Responsibilities:
+- Build distributed storage, indexing and query systems at scale
+- Design and code solutions for broadly defined problems
+- Work in an agile team to ship high-quality software
+
+Requirements:
+- 1+ years of professional software development experience
+- Strong programming skills in Java, Python or C++
+- Experience with distributed systems and cloud (AWS)
+- Bachelor's degree in Computer Science or equivalent

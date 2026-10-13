@@ -1,0 +1,17 @@
+[project]
+name = "resume-screener"
+version = "1.0.0"
+description = "Explainable, local resume screening: LLM fact extraction, deterministic scoring and hybrid retrieval (Streamlit + ChromaDB + Ollama)"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = ["E501", "SIM108"]  # SIM108: nested ternaries read worse than if/else
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
