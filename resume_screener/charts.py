@@ -31,12 +31,24 @@ def _style(fig: go.Figure, height: int, title: str | None = None, legend: bool =
     return fig
 
 
+def _wrap(label: str, width: int = 12) -> str:
+    """Break long axis labels onto several lines so neighbouring columns don't collide."""
+    lines, line = [], ""
+    for word in label.split():
+        if line and len(line) + len(word) + 1 > width:
+            lines.append(line)
+            line = word
+        else:
+            line = f"{line} {word}".strip()
+    return "<br>".join([*lines, line])
+
+
 def fit_breakdown(df: pd.DataFrame, threshold: float, n: int = 12) -> go.Figure:
     """Ranking as stacked bars: how many fit points each component contributes."""
     d = df.head(n).iloc[::-1]
     labels = [f"{'★ ' if s else ''}{c}" for c, s in zip(d["Candidate"], d["Shortlisted"], strict=True)]
     fig = go.Figure()
-    for comp in COMPONENTS:
+    for comp in [c for c in COMPONENTS if d[c].notna().any()]:  # skipped components get no bar or legend
         fig.add_bar(
             y=labels,
             x=d[f"pts:{comp}"],
@@ -69,7 +81,7 @@ def skills_matrix(df: pd.DataFrame, req: JobRequirements, n: int = 12) -> go.Fig
     skills = req.must_have + req.nice_to_have
     z = [[1 if s in (row["Matched"] + row["Bonus"]) else 0 for s in skills] for _, row in d.iterrows()]
     text = [["✓" if v else "·" for v in r] for r in z]
-    cols = [s if s in req.must_have else f"{s} (+)" for s in skills]
+    cols = [_wrap(s if s in req.must_have else f"{s} (+)") for s in skills]
     fig = go.Figure(
         go.Heatmap(
             z=z,
@@ -87,9 +99,10 @@ def skills_matrix(df: pd.DataFrame, req: JobRequirements, n: int = 12) -> go.Fig
             hovertemplate="%{y} · %{x}: %{text}<extra></extra>",
         )
     )
-    fig.update_xaxes(side="top", tickangle=0, gridcolor="rgba(0,0,0,0)")
+    fig.update_xaxes(side="bottom", tickangle=0, gridcolor="rgba(0,0,0,0)")
     fig.update_yaxes(gridcolor="rgba(0,0,0,0)")
-    return _style(fig, max(260, 34 * len(d) + 90), "Skills matrix  ·  (+) nice-to-have")
+    title = "Skills matrix" + ("  ·  (+) nice-to-have" if req.nice_to_have else "")
+    return _style(fig, max(280, 34 * len(d) + 120), title)
 
 
 def experience_vs_relevance(df: pd.DataFrame) -> go.Figure:

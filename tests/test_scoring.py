@@ -1,3 +1,5 @@
+import math
+
 import pandas as pd
 import pytest
 
@@ -83,7 +85,7 @@ def test_inferred_skill_needs_evidence_that_exists():
 
 def test_component_scores():
     assert coverage({"a": ""}, ["a", "b"]) == 50
-    assert coverage({}, []) is None  # nothing asked for -> component skipped
+    assert math.isnan(coverage({}, []))  # nothing asked for -> component skipped
     assert experience_score(0, 2) == 20
     assert experience_score(1, 2) == 60
     assert experience_score(5, 2) == 100
@@ -194,8 +196,9 @@ def test_experience_uses_relevant_years_and_degree_falls_back_to_text():
 
 def test_components_without_data_are_skipped():
     candidates = frame()
-    candidates["Nice-to-have"] = None
+    candidates["Nice-to-have"] = None  # what pandas builds when every candidate has no value
     df = compute_fit(candidates, dict.fromkeys(COMPONENTS, 1), threshold=60)
+    assert df["Fit"].dtype == float and df["Nice-to-have"].dtype == float  # regression: object dtype broke charts
     assert df.set_index("Candidate").loc["High", "Fit"] == 90  # not diluted by the empty component
     assert weight_shares(dict.fromkeys(COMPONENTS, 1), ["Must-have", "Experience"])["Must-have"] == 0.5
 

@@ -5,6 +5,7 @@ UI can change weights and the shortlist threshold without calling the model agai
 """
 
 import logging
+import math
 import re
 import time
 from collections.abc import Callable
@@ -123,9 +124,9 @@ def clamp(x: float, lo: float = 0.0, hi: float = 100.0) -> float:
     return max(lo, min(hi, x))
 
 
-def coverage(found: dict[str, str], wanted: list[str]) -> float | None:
-    """Share of `wanted` that was found; None when the job lists nothing (the component is then skipped)."""
-    return 100.0 * sum(s in found for s in wanted) / len(wanted) if wanted else None
+def coverage(found: dict[str, str], wanted: list[str]) -> float:
+    """Share of `wanted` that was found; NaN when the job lists nothing (the component is then skipped)."""
+    return 100.0 * sum(s in found for s in wanted) / len(wanted) if wanted else math.nan
 
 
 def experience_score(years: float, min_years: float) -> float:
@@ -288,8 +289,10 @@ def weight_shares(weights: dict[str, float], active: list[str] = COMPONENTS) -> 
 
 def compute_fit(candidates: pd.DataFrame, weights: dict[str, float], threshold: float) -> pd.DataFrame:
     """Weighted fit score, rank and shortlist flag. Pure and fast; never calls the LLM."""
-    shares = weight_shares(weights, active_components(candidates))
     df = candidates.copy()
+    for c in COMPONENTS:
+        df[c] = pd.to_numeric(df[c], errors="coerce").astype(float)  # None -> NaN, keeps the column numeric
+    shares = weight_shares(weights, active_components(df))
     for c in COMPONENTS:
         df[f"pts:{c}"] = df[c].fillna(0.0) * shares[c]
     df["Fit"] = sum(df[f"pts:{c}"] for c in COMPONENTS).round(1)
