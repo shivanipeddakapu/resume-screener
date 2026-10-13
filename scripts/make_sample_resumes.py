@@ -3,6 +3,7 @@
 usage: python scripts/make_sample_resumes.py [out_dir]   (default: samples/)
 """
 
+import io
 import sys
 import zipfile
 from pathlib import Path
@@ -84,8 +85,9 @@ RESUMES = {
 }
 
 ss = getSampleStyleSheet()
+pdfs: dict[str, bytes] = {}
 for name, r in RESUMES.items():
-    path = OUT / f"{name}.pdf"
+    buf = io.BytesIO()
     story = [
         Paragraph(name.replace("_", " "), ss["Title"]),
         Paragraph(f"<b>{r['title']}</b> &nbsp; | &nbsp; {r['contact']}", ss["Normal"]),
@@ -101,9 +103,10 @@ for name, r in RESUMES.items():
         Paragraph("Education", ss["Heading2"]),
         Paragraph(r["edu"], ss["Normal"]),
     ]
-    SimpleDocTemplate(str(path), pagesize=A4).build(story)
+    SimpleDocTemplate(buf, pagesize=A4).build(story)
+    pdfs[f"{name}.pdf"] = buf.getvalue()
 
 with zipfile.ZipFile(OUT / "sample_resumes.zip", "w") as zf:
-    for p in sorted(OUT.glob("*.pdf")):
-        zf.write(p, p.name)
+    for file_name in sorted(pdfs):
+        zf.writestr(file_name, pdfs[file_name])
 print("wrote", OUT / "sample_resumes.zip")

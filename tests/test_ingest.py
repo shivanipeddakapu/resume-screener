@@ -6,8 +6,8 @@ import pytest
 
 from resume_screener.ingest import pdf_text, read_resumes, unpack_pdfs
 
-SAMPLES = Path(__file__).resolve().parent.parent / "samples"
-SAMPLE_PDF = (SAMPLES / "Arjun_Mehta.pdf").read_bytes()
+SAMPLE_ZIP = Path(__file__).resolve().parent.parent / "samples" / "sample_resumes.zip"
+SAMPLE_PDF = zipfile.ZipFile(SAMPLE_ZIP).read("Arjun_Mehta.pdf")
 
 
 def make_zip(files: dict[str, bytes]) -> bytes:
