@@ -77,3 +77,10 @@ def test_search_prefers_matching_resume_and_caps_chunks_per_resume(index):
 def test_relevance_ranks_resumes_against_query(index):
     sims = index.relevance(index.embed_query("patient nursing"))
     assert max(sims, key=sims.get) == "r1"
+
+
+def test_tidy_bullets_makes_markdown_lists():
+    from resume_screener.assistant import tidy_bullets
+
+    assert tidy_bullets("• Ann [a.pdf] • Bob [b.pdf]") == "- Ann [a.pdf]\n- Bob [b.pdf]"
+    assert tidy_bullets("No bullets here.") == "No bullets here."

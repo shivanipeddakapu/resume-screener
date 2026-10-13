@@ -244,8 +244,8 @@ def candidate_row(resume: Resume, facts: CandidateFacts | None, req: JobRequirem
         "Education": education_score(degree, field, req),
         "Relevance": relevance_score(similarity),
         "Headline": facts.headline.strip() if facts else "Could not be profiled by the LLM; scored from text only.",
-        "Strengths": list(facts.strengths[:3]) if facts else [],
-        "Gaps": list(facts.gaps[:3]) if facts else [],
+        "Strengths": [x.strip() for x in facts.strengths if x.strip()][:3] if facts else [],
+        "Gaps": [x.strip() for x in facts.gaps if x.strip()][:3] if facts else [],
         "Profiled": facts is not None,
     }
 

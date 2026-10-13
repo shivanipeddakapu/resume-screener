@@ -54,7 +54,7 @@ starts with "### <file name>".
 
 Rules
 - Name the candidate and put the file name in square brackets after each claim, e.g. [Jane_Doe.pdf].
-- If several candidates fit, give one bullet per candidate.
+- If several candidates fit, give one "- " bullet per candidate with a few words on what their resume shows.
 - If the excerpts do not contain the answer, reply exactly: {NOT_FOUND}
 - Be brief and factual; never add details that are not in the excerpts.
 

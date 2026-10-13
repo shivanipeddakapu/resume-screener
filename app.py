@@ -383,10 +383,7 @@ with tab_report:
         with st.container(key="card_evidence"):
             ui.section_title("Skill evidence", "quoted from the resume")
             if row["Evidence"]:
-                st.dataframe(
-                    pd.DataFrame(list(row["Evidence"].items()), columns=["Skill", "Evidence"]),
-                    hide_index=True, width="stretch",
-                )  # fmt: skip
+                ui.html_block(ui.evidence_list(row["Evidence"]))
             else:
                 st.caption("No required skills found.")
 
@@ -404,7 +401,15 @@ with tab_compare, st.container(key="card_compare"):
         with right:
             facts = ["Fit", *COMPONENTS, "Years"]
             st.dataframe(
-                pd.DataFrame({f"#{r['Rank']} {r['Candidate']}": [round(r[f], 1) for f in facts] for r in rows}, index=facts),
+                pd.DataFrame(
+                    {
+                        f"#{r['Rank']} {r['Candidate']}": [
+                            "n/a" if pd.isna(r[f]) else f"{r[f]:.1f}".removesuffix(".0") for f in facts
+                        ]
+                        for r in rows
+                    },
+                    index=facts,
+                ),
                 width="stretch",
             )
             for r in rows:

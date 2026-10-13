@@ -1,5 +1,6 @@
 """LLM features on top of screening results: grounded Q&A and the hiring brief."""
 
+import re
 from collections import Counter
 
 import pandas as pd
@@ -14,7 +15,12 @@ def answer(question: str, index: ResumeIndex, llm: BaseChatModel) -> tuple[str, 
     """Hybrid-retrieve resume chunks for the question and answer from them only."""
     chunks = index.search(question)
     reply = llm.invoke(answer_prompt(question, format_context(chunks))).content
-    return reply, sorted({c.resume_name for c in chunks})
+    return tidy_bullets(reply), sorted({c.resume_name for c in chunks})
+
+
+def tidy_bullets(text: str) -> str:
+    """Turn '•'-style bullets (which Markdown ignores) into real list items on their own lines."""
+    return re.sub(r"\s*[•●▪]\s*", "\n- ", text).strip()
 
 
 def results_table(ranked: pd.DataFrame, top: int = 8) -> str:

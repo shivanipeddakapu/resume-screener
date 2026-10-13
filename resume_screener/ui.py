@@ -81,6 +81,14 @@ div[class*="st-key-card"] { background: var(--surface); border: 1px solid var(--
 .summary { background: var(--primary-soft); border-left: 3px solid var(--primary); padding: 10px 14px; border-radius: 8px;
   color: var(--ink); font-size: .92rem; margin-top: 8px; }
 
+/* ── evidence list ────────────────────────────────── */
+.evidence { list-style: none; margin: 0; padding: 0; }
+.evidence li { display: grid; grid-template-columns: 110px 1fr; gap: 10px; padding: 9px 0; border-top: 1px solid var(--border);
+  font-size: .88rem; }
+.evidence li:first-child { border-top: 0; }
+.evidence b { color: var(--ink); }
+.evidence span { color: var(--muted); font-style: italic; }
+
 /* ── sidebar ──────────────────────────────────────── */
 section[data-testid="stSidebar"] { background: #0f1b3d; }
 section[data-testid="stSidebar"] * { color: #dbe4ff; }
@@ -162,6 +170,11 @@ def chips(items: list[str], tone: str = "neutral", empty: str = "none") -> str:
 
 def badge(text: str, tone: str) -> str:
     return f'<span class="badge {tone}" role="status">{escape(text)}</span>'
+
+
+def evidence_list(evidence: dict[str, str]) -> str:
+    items = "".join(f"<li><b>{escape(skill)}</b><span>{escape(quote)}</span></li>" for skill, quote in evidence.items())
+    return f'<ul class="evidence">{items}</ul>'
 
 
 def html_block(markup: str) -> None:

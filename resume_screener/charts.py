@@ -121,9 +121,12 @@ def experience_vs_relevance(df: pd.DataFrame) -> go.Figure:
             customdata=d["Fit"],
             hovertemplate="%{text}<br>%{x:g} yrs · relevance %{y:.0f} · fit %{customdata:.0f}<extra></extra>",
         )
-    fig.update_xaxes(title="Years of experience", rangemode="tozero")
-    fig.update_yaxes(title="Relevance to the job", range=[-5, 110])
-    return _style(fig, 330, "Experience vs. relevance", legend=True)
+    top_years = float(df["Years"].max()) if len(df) else 1.0
+    fig.update_xaxes(title="Years of experience", range=[-0.6, max(top_years, 1.0) * 1.15 + 0.6])
+    fig.update_yaxes(title="Relevance to the job", range=[-8, 122])  # headroom for the name labels
+    fig = _style(fig, 360, "Experience vs. relevance", legend=True)
+    fig.update_layout(legend=dict(orientation="h", y=1.02, x=1, xanchor="right", yanchor="bottom"))
+    return fig
 
 
 def component_bars(row: pd.Series, shares: dict[str, float]) -> go.Figure:
@@ -146,11 +149,12 @@ def component_bars(row: pd.Series, shares: dict[str, float]) -> go.Figure:
 
 
 def compare_bars(rows: list[pd.Series]) -> go.Figure:
+    comps = [c for c in COMPONENTS if any(pd.notna(r[c]) for r in rows)]
     fig = go.Figure()
     for i, r in enumerate(rows):
         fig.add_bar(
-            x=COMPONENTS + ["Fit"],
-            y=[0 if pd.isna(r[c]) else r[c] for c in COMPONENTS] + [r["Fit"]],
+            x=comps + ["Fit"],
+            y=[0 if pd.isna(r[c]) else r[c] for c in comps] + [r["Fit"]],
             name=f"#{r['Rank']} {r['Candidate']}",
             marker_color=SERIES[i % len(SERIES)],
             hovertemplate="%{x}: %{y:.0f}<extra>%{fullData.name}</extra>",
